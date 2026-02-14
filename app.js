@@ -1,104 +1,135 @@
-// Ждем полной загрузки страницы
-document.addEventListener('DOMContentLoaded', function() {
+// Простое и надежное приложение для заметок
+(function() {
+    'use strict';
     
-    // Получаем элементы
-    const noteInput = document.getElementById('noteInput');
-    const addBtn = document.getElementById('addBtn');
-    const notesContainer = document.getElementById('notesContainer');
-    
-    // Загружаем заметки из localStorage
-    let notes = [];
-    
-    function loadNotes() {
-        const savedNotes = localStorage.getItem('notes');
-        if (savedNotes) {
-            notes = JSON.parse(savedNotes);
-        }
-        renderNotes();
-    }
-    
-    // Сохраняем заметки
-    function saveNotes() {
-        localStorage.setItem('notes', JSON.stringify(notes));
-        renderNotes();
-    }
-    
-    // Добавляем заметку
-    function addNote() {
-        const text = noteInput.value.trim();
+    // Ждем загрузки страницы
+    window.addEventListener('load', function() {
         
-        if (text === '') {
-            alert('Введите текст заметки!');
+        // Получаем элементы
+        const noteInput = document.getElementById('noteInput');
+        const addBtn = document.getElementById('addBtn');
+        const notesContainer = document.getElementById('notesContainer');
+        
+        // Проверяем что все элементы найдены
+        if (!noteInput || !addBtn || !notesContainer) {
+            alert('Ошибка загрузки приложения');
             return;
         }
         
-        // Создаем новую заметку
-        const newNote = {
-            id: Date.now(),
-            text: text,
-            date: new Date().toLocaleString('ru-RU')
+        // Массив с заметками
+        let notes = [];
+        
+        // Загружаем сохраненные заметки
+        function loadNotes() {
+            try {
+                const saved = localStorage.getItem('myNotes');
+                if (saved) {
+                    notes = JSON.parse(saved);
+                }
+            } catch(e) {
+                console.log('Ошибка загрузки');
+                notes = [];
+            }
+            showNotes();
+        }
+        
+        // Сохраняем заметки
+        function saveNotes() {
+            try {
+                localStorage.setItem('myNotes', JSON.stringify(notes));
+            } catch(e) {
+                alert('Не удалось сохранить заметку');
+            }
+        }
+        
+        // Показываем заметки на экране
+        function showNotes() {
+            if (notes.length === 0) {
+                notesContainer.innerHTML = '<div class="empty-state">Нет заметок</div>';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 0; i < notes.length; i++) {
+                const note = notes[i];
+                html += '<div class="note">';
+                html += '<div class="note-text">' + note.text + '</div>';
+                html += '<div class="note-date">' + note.date + '</div>';
+                html += '<button class="delete-btn" data-id="' + note.id + '">Удалить</button>';
+                html += '</div>';
+            }
+            notesContainer.innerHTML = html;
+            
+            // Добавляем обработчики для кнопок удаления
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].addEventListener('click', function(e) {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    deleteNote(id);
+                });
+            }
+        }
+        
+        // Добавляем новую заметку
+        function addNewNote() {
+            const text = noteInput.value.trim();
+            
+            if (text === '') {
+                alert('Введите текст заметки');
+                return;
+            }
+            
+            // Создаем заметку
+            const now = new Date();
+            const dateStr = now.getDate() + '.' + (now.getMonth() + 1) + '.' + now.getFullYear() + ' ' + 
+                           now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+            
+            const newNote = {
+                id: Date.now(),
+                text: text,
+                date: dateStr
+            };
+            
+            // Добавляем в массив
+            notes.push(newNote);
+            
+            // Сохраняем
+            saveNotes();
+            
+            // Очищаем поле
+            noteInput.value = '';
+            
+            // Обновляем экран
+            showNotes();
+        }
+        
+        // Удаляем заметку
+        function deleteNote(id) {
+            const newNotes = [];
+            for (let i = 0; i < notes.length; i++) {
+                if (notes[i].id !== id) {
+                    newNotes.push(notes[i]);
+                }
+            }
+            notes = newNotes;
+            saveNotes();
+            showNotes();
+        }
+        
+        // Назначаем обработчики
+        addBtn.onclick = function() {
+            addNewNote();
         };
         
-        // Добавляем в массив
-        notes.push(newNote);
+        noteInput.onkeypress = function(e) {
+            if (e.key === 'Enter') {
+                addNewNote();
+            }
+        };
         
-        // Сохраняем
-        saveNotes();
+        // Загружаем заметки
+        loadNotes();
         
-        // Очищаем поле ввода
-        noteInput.value = '';
-        
-        // Показываем сообщение
-        console.log('Заметка добавлена!');
-    }
-    
-    // Удаляем заметку
-    function deleteNote(id) {
-        notes = notes.filter(note => note.id !== id);
-        saveNotes();
-    }
-    
-    // Отображаем заметки
-    function renderNotes() {
-        if (notes.length === 0) {
-            notesContainer.innerHTML = '<div class="empty-state">Нет заметок. Добавьте первую!</div>';
-            return;
-        }
-        
-        let html = '';
-        
-        for (let i = 0; i < notes.length; i++) {
-            const note = notes[i];
-            html += `
-                <div class="note" data-id="${note.id}">
-                    <div class="note-content">
-                        <div class="note-text">${note.text}</div>
-                        <div class="note-date">${note.date}</div>
-                    </div>
-                    <button class="delete-btn" onclick="deleteNoteHandler(${note.id})">Удалить</button>
-                </div>
-            `;
-        }
-        
-        notesContainer.innerHTML = html;
-    }
-    
-    // Обработчик удаления (глобальная функция)
-    window.deleteNoteHandler = function(id) {
-        deleteNote(id);
-    };
-    
-    // Назначаем обработчик на кнопку Добавить
-    addBtn.addEventListener('click', addNote);
-    
-    // Обработчик нажатия Enter
-    noteInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            addNote();
-        }
     });
     
-    // Загружаем заметки при старте
-    loadNotes();
-    
-});
+})();
