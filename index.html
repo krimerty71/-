@@ -5,141 +5,586 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Мои заметки</title>
     <style>
+        /* СБРОС ВСЕХ СТИЛЕЙ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #667eea;
+
+        /* ОСНОВНЫЕ СТИЛИ */
+        html, body {
+            width: 100%;
             min-height: 100vh;
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 10px;
         }
-        
-        .container {
-            max-width: 100%;
+
+        /* КОНТЕЙНЕР - УМЕНЬШЕННЫЙ РАЗМЕР */
+        .phone-frame {
+            width: 100%;
+            max-width: 350px;  /* Уменьшил ширину */
+            margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
         }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+
+        /* ШАПКА */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
             text-align: center;
-            font-size: 24px;
         }
-        
-        .input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
+
+        .header h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        
+
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .content {
+            padding: 20px;
+            background: white;
+        }
+
+        /* БЛОК ВВОДА */
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
         #noteInput {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            height: 48px;
+            padding: 0 16px;
             font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             outline: none;
+            transition: all 0.2s;
+            background: #fafafa;
         }
-        
+
         #noteInput:focus {
             border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
-        #addBtn {
+
+        #noteInput::placeholder {
+            color: #a0aec0;
+            font-size: 15px;
+        }
+
+        /* КНОПКА ДОБАВЛЕНИЯ - БОЛЬШАЯ И ЗАМЕТНАЯ */
+        #addButton {
             width: 100%;
-            padding: 15px;
-            background: #667eea;
-            color: white;
+            height: 52px;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
+            color: white;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 1px;
             cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
             -webkit-appearance: none;
             appearance: none;
+            display: block;
         }
-        
-        #addBtn:active {
-            background: #5a67d8;
+
+        #addButton:active {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
-        .notes-container {
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
+
+        #addButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
-        
-        .note {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #e0e0e0;
-            position: relative;
+
+        /* ЗАГОЛОВОК СПИСКА */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #edf2f7;
         }
-        
-        .note-text {
+
+        .list-title {
             font-size: 16px;
-            color: #333;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .list-count {
+            background: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        /* СПИСОК ЗАМЕТОК */
+        .notes-list {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* ПРОКРУТКА */
+        .notes-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .notes-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .notes-list::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        /* КАРТОЧКА ЗАМЕТКИ */
+        .note-card {
+            background: #f8fafc;
+            border: 1px solid #e9eef2;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            transition: all 0.2s;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .note-card:active {
+            background: #f1f5f9;
+        }
+
+        .note-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #1e293b;
+            margin-bottom: 8px;
             word-break: break-word;
             padding-right: 70px;
         }
-        
-        .note-date {
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 12px;
-            color: #999;
-            margin-top: 5px;
+            color: #64748b;
         }
-        
-        .delete-btn {
+
+        .note-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* КНОПКА УДАЛЕНИЯ */
+        .delete-button {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #f56565;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            top: 12px;
+            right: 12px;
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: #ef4444;
+            width: 60px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             -webkit-appearance: none;
             appearance: none;
         }
-        
-        .delete-btn:active {
-            background: #e53e3e;
+
+        .delete-button:active {
+            background: #fee2e2;
+            color: #dc2626;
+            transform: scale(0.95);
         }
-        
+
+        /* ПУСТОЕ СОСТОЯНИЕ */
         .empty-state {
             text-align: center;
-            color: #999;
-            padding: 30px;
-            font-style: italic;
+            padding: 40px 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .empty-state small {
+            color: #cbd5e0;
+            font-size: 13px;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* УВЕДОМЛЕНИЯ */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* АДАПТАЦИЯ ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ */
+        @media (max-width: 360px) {
+            .phone-frame {
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .note-text {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Мои заметки</h1>
-        
-        <div class="input-area">
-            <input type="text" id="noteInput" placeholder="Введите заметку...">
-            <button id="addBtn">ДОБАВИТЬ</button>
+    <div class="phone-frame">
+        <!-- ШАПКА -->
+        <div class="header">
+            <h1>📋 МОИ ЗАМЕТКИ</h1>
         </div>
         
-        <div class="notes-container" id="notesContainer">
-            <div class="empty-state">Нет заметок</div>
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <div class="content">
+            <!-- СЕКЦИЯ ДОБАВЛЕНИЯ -->
+            <div class="input-section">
+                <div class="input-label">Новая заметка</div>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="noteInput" 
+                        placeholder="Например: купить молоко..."
+                        autocomplete="off"
+                    >
+                </div>
+                <button id="addButton">➕ ДОБАВИТЬ</button>
+            </div>
+            
+            <!-- СПИСОК ЗАМЕТОК -->
+            <div class="list-header">
+                <span class="list-title">📌 Все заметки</span>
+                <span class="list-count" id="notesCount">0</span>
+            </div>
+            
+            <div id="notesContainer" class="notes-list">
+                <!-- Заметки будут появляться здесь -->
+            </div>
         </div>
     </div>
+    
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div id="toast" class="toast"></div>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <script>
+        // ===============================================
+        // ПРОСТОЕ И НАДЕЖНОЕ ПРИЛОЖЕНИЕ ДЛЯ ЗАМЕТОК
+        // ===============================================
+        
+        (function() {
+            'use strict';
+            
+            // ЖДЕМ ПОЛНОЙ ЗАГРУЗКИ СТРАНИЦЫ
+            window.addEventListener('load', function() {
+                
+                // =======================================
+                // 1. ПОЛУЧАЕМ ВСЕ ЭЛЕМЕНТЫ
+                // =======================================
+                const noteInput = document.getElementById('noteInput');
+                const addButton = document.getElementById('addButton');
+                const notesContainer = document.getElementById('notesContainer');
+                const notesCountSpan = document.getElementById('notesCount');
+                const toastElement = document.getElementById('toast');
+                
+                // ПРОВЕРЯЕМ ЧТО ВСЕ ЭЛЕМЕНТЫ НАЙДЕНЫ
+                if (!noteInput || !addButton || !notesContainer || !notesCountSpan) {
+                    alert('Ошибка загрузки приложения. Пожалуйста, обновите страницу.');
+                    return;
+                }
+                
+                // =======================================
+                // 2. ПЕРЕМЕННЫЕ
+                // =======================================
+                let notes = [];              // Массив для хранения заметок
+                let toastTimeout = null;      // Таймер для уведомлений
+                
+                // =======================================
+                // 3. ЗАГРУЗКА СОХРАНЕННЫХ ЗАМЕТОК
+                // =======================================
+                function loadNotes() {
+                    try {
+                        const savedNotes = localStorage.getItem('notes_app_data');
+                        if (savedNotes) {
+                            notes = JSON.parse(savedNotes);
+                            // ПРОВЕРЯЕМ ЧТО ЭТО МАССИВ
+                            if (!Array.isArray(notes)) {
+                                notes = [];
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Ошибка при загрузке:', error);
+                        notes = [];
+                    }
+                    
+                    // ОБНОВЛЯЕМ ОТОБРАЖЕНИЕ
+                    renderNotes();
+                }
+                
+                // =======================================
+                // 4. СОХРАНЕНИЕ ЗАМЕТОК
+                // =======================================
+                function saveNotes() {
+                    try {
+                        localStorage.setItem('notes_app_data', JSON.stringify(notes));
+                        return true;
+                    } catch (error) {
+                        console.error('Ошибка при сохранении:', error);
+                        showToast('Не удалось сохранить заметку');
+                        return false;
+                    }
+                }
+                
+                // =======================================
+                // 5. ПОКАЗ УВЕДОМЛЕНИЙ
+                // =======================================
+                function showToast(message) {
+                    if (!toastElement) return;
+                    
+                    // ОЧИЩАЕМ ПРЕДЫДУЩИЙ ТАЙМЕР
+                    if (toastTimeout) {
+                        clearTimeout(toastTimeout);
+                    }
+                    
+                    // ПОКАЗЫВАЕМ СООБЩЕНИЕ
+                    toastElement.textContent = message;
+                    toastElement.classList.add('show');
+                    
+                    // ПРЯЧЕМ ЧЕРЕЗ 2 СЕКУНДЫ
+                    toastTimeout = setTimeout(function() {
+                        toastElement.classList.remove('show');
+                    }, 2000);
+                }
+                
+                // =======================================
+                // 6. ОБНОВЛЕНИЕ СЧЕТЧИКА
+                // =======================================
+                function updateCounter() {
+                    if (notesCountSpan) {
+                        const count = notes.length;
+                        notesCountSpan.textContent = count;
+                        
+                        // МЕНЯЕМ ЦВЕТ ЕСЛИ МНОГО ЗАМЕТОК
+                        if (count >= 10) {
+                            notesCountSpan.style.background = '#fef3c7';
+                            notesCountSpan.style.color = '#92400e';
+                        } else if (count >= 5) {
+                            notesCountSpan.style.background = '#dbeafe';
+                            notesCountSpan.style.color = '#1e40af';
+                        } else {
+                            notesCountSpan.style.background = '#e2e8f0';
+                            notesCountSpan.style.color = '#4a5568';
+                        }
+                    }
+                }
+                
+                // =======================================
+                // 7. ОТОБРАЖЕНИЕ ЗАМЕТОК
+                // =======================================
+                function renderNotes() {
+                    // ОБНОВЛЯЕМ СЧЕТЧИК
+                    updateCounter();
+                    
+                    // ЕСЛИ НЕТ ЗАМЕТОК
+                    if (notes.length === 0) {
+                        notesContainer.innerHTML = `
+                            <div class="empty-state">
+                                <p>✨ Здесь пока пусто</p>
+                                <small>Добавьте первую заметку</small>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // СОЗДАЕМ HTML ДЛЯ ВСЕХ ЗАМЕТОК
+                    let html = '';
+                    
+                    // ИДЕМ ПО ВСЕМ ЗАМЕТКАМ (С НОВЫХ К СТАРЫМ)
+                    for (let i = notes.length - 1; i >= 0; i--) {
+                        const note = notes[i];
+                        
+                        // ФОРМАТИРУЕМ ДАТУ
+                        let dateStr = 'только что';
+                        if (note.date) {
+                            const noteDate = new Date(note.date);
+                            if (!isNaN(noteDate)) {
+                                const now = new Date();
+                                const diffHours = Math.floor((now - noteDate) / (1000 * 60 * 60));
+                                
+                                if (diffHours < 24) {
+                                    if (diffHours < 1) {
+                                        const diffMinutes = Math.floor((now - noteDate) / (1000 * 60));
+                                        dateStr = diffMinutes + ' мин. назад';
+                                    } else {
+                                        dateStr = diffHours + ' ч. назад';
+                                    }
+                                } else {
+                                    dateStr = noteDate.toLocaleDateString('ru-RU');
+                                }
+                            } else {
+                                dateStr = note.date;
+                            }
+                        }
+                        
+                        // ДОБАВЛЯЕМ КАРТОЧКУ ЗАМЕТКИ
+                        html += `
+                            <div class="note-card" data-note-id="${note.id}">
+                                <div class="note-text">${escapeHtml(note.text)}</div>
+                                <div class="note-footer">
+                                    <span class="note-date">🕒 ${escapeHtml(dateStr)}</span>
+                                </div>
+                                <button class="delete-button" onclick="window.deleteNote('${note.id}')">Удалить</button>
+                            </div>
+                        `;
+                    }
+                    
+                    notesContainer.innerHTML = html;
+                }
+                
+                // =======================================
+                // 8. ЗАЩИТА ОТ XSS
+                // =======================================
+                function escapeHtml(text) {
+                    if (!text) return '';
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
+                
+                // =======================================
+                // 9. ДОБАВЛЕНИЕ НОВОЙ ЗАМЕТКИ
+                // =======================================
+                function addNote() {
+                    // ПОЛУЧАЕМ ТЕКСТ И УДАЛЯЕМ ЛИШНИЕ ПРОБЕЛЫ
+                    const text = noteInput.value.trim();
+                    
+                    // ПРОВЕРЯЕМ ЧТО ТЕКСТ НЕ ПУСТОЙ
+                    if (text === '') {
+                        showToast('Введите текст заметки');
+                        noteInput.focus();
+                        return;
+                    }
+                    
+                    // ПРОВЕРЯЕМ МАКСИМАЛЬНУЮ ДЛИНУ
+                    if (text.length > 500) {
+                        showToast('Текст слишком длинный (макс. 500 символов)');
+                        return;
+                    }
+                    
+                    // СОЗДАЕМ НОВУЮ ЗАМЕТКУ
+                    const newNote = {
+                        id: Date.now().toString(),  // УНИКАЛЬНЫЙ ID
+                        text: text,
+                        date: new Date().toISOString()
+                    };
+                    
+                    // ДОБАВЛЯЕМ В МАССИВ
+                    notes.push(newNote);
+                    
+                    // СОХРАНЯЕМ
+                    if (saveNotes()) {
+                        // ОЧИЩАЕМ ПОЛЕ ВВОДА
+                        noteInput.value = '';
+                        
+                        // ПОКАЗЫВАЕМ УВЕДОМЛЕНИЕ
+                        showToast('✅ Заметка добавлена');
+                        
+                        // ОБНОВЛЯЕМ ОТОБРАЖЕНИЕ
+                        renderNotes();
+                        
+                        // ПРОКРУЧИВАЕМ К НОВОЙ ЗАМЕТКЕ
+                        setTimeout(function() {
+                            const lastNote = document.querySelector('.note-card');
+                            if (lastNote) {
+                                lastNote.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }, 100);
+                    }
+                }
+                
+                // =======================
